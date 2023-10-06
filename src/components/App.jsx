@@ -12,8 +12,7 @@ export const App = () => {
   const [isOpened, setIsOpened] = useState(false);
   const [data, setData] = useState('');
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(12);
-  const [images, setImages] = useState(null);
+  const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadMore, setLoadMore] = useState(true);
 
@@ -27,14 +26,11 @@ export const App = () => {
   };
 
   const fetchAllImages = async () => {
+    setIsLoading(true);
     try {
-      if (page === 1) {
-        setImages(null);
-      }
-      setIsLoading(true);
-      const imagesEl = await fetchImages(page, perPage, input);
+      const imagesEl = await fetchImages(page, input);
       setImages(page === 1 ? imagesEl.hits : [...images, ...imagesEl.hits]);
-      setLoadMore(page < Math.ceil(imagesEl.totalHits / perPage));
+      setLoadMore(page < Math.ceil(imagesEl.totalHits / 12));
     } catch (error) {
       console.error(error);
     } finally {
