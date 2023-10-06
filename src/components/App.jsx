@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
@@ -7,108 +7,68 @@ import fetchImages from 'components/Service/api';
 import { ColorRing } from 'react-loader-spinner';
 import Modal from './Modal/Modal';
 
-export class App extends Component {
-  state = {
-    input: '',
-    modal: {
-      isOpened: false,
-      data: '',
-    },
-    page: 1,
-    perPage: 12,
-    images: null,
-    isLoading: false,
-    totalHits: 0,
-    loadMore: true,
+export const App = () => {
+  const [input, setInput] = useState('');
+  const [isOpened, setIsOpened] = useState(false);
+  const [data, setData] = useState('');
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(12);
+  const [images, setImages] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadMore, setLoadMore] = useState(true);
+
+  useEffect(() => {
+    fetchAllImages();
+  }, [page, input]);
+
+  const onToggleModal = modalData => {
+    setIsOpened(!isOpened);
+    setData(modalData);
   };
 
-  componentDidMount() {
-    this.fetchAllImages();
-  }
-
-  componentDidUpdate(_, prevState) {
-    if (
-      this.state.page !== prevState.page ||
-      this.state.input !== prevState.input ||
-      this.state.page !== prevState.page
-    ) {
-      this.fetchAllImages();
-    }
-  }
-
-  onToggleModal = modalData => {
-    this.setState(prevState => ({
-      modal: {
-        isOpened: !prevState.modal.isOpened,
-        data: modalData,
-      },
-    }));
-  };
-
-  fetchAllImages = async () => {
-    const { page, perPage, input } = this.state;
+  const fetchAllImages = async () => {
     try {
       if (page === 1) {
-        this.setState({ images: null });
+        setImages(null);
       }
-      this.setState({
-        isLoading: true,
-      });
-      const images = await fetchImages(page, perPage, input);
-      this.setState(prevState => ({
-        totalHits: images.totalHits,
-        images:
-          page === 1 ? images.hits : [...prevState.images, ...images.hits],
-        loadMore: page < Math.ceil(images.totalHits / perPage),
-      }));
+      setIsLoading(true);
+      const imagesEl = await fetchImages(page, perPage, input);
+      setImages(page === 1 ? imagesEl.hits : [...images, ...imagesEl.hits]);
+      setLoadMore(page < Math.ceil(imagesEl.totalHits / perPage));
     } catch (error) {
       console.error(error);
     } finally {
-      this.setState({
-        isLoading: false,
-      });
+      setIsLoading(false);
     }
   };
 
-  handleSubmit = input => {
+  const handleSubmit = input => {
     if (!input) {
       return;
     }
 
-    this.setState({
-      input,
-      page: 1,
-    });
+    setInput(input);
+    setPage(1);
   };
 
-  handleClick = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const handleClick = () => {
+    setPage(page + 1);
   };
 
-  render() {
-    const { images } = this.state;
-    const showImages =
-      Array.isArray(this.state.images) && this.state.images.length;
-    return (
-      <div>
-        <Searchbar handleSubmit={this.handleSubmit} />
-        <ColorRing visible={this.state.isLoading} />
-        <ImageGallery>
-          <ImageGalleryItem
-            images={images}
-            showImages={showImages}
-            onToggleModal={this.onToggleModal}
-          />
-        </ImageGallery>
-        {this.state.loadMore && (
-          <Button handleClick={this.handleClick} showImages={showImages} />
-        )}
-        {this.state.modal.isOpened && (
-          <Modal data={this.state.modal.data} onClose={this.onToggleModal} />
-        )}
-      </div>
-    );
-  }
-}
+  const showImages = Array.isArray(images) && images.length;
+  return (
+    <div>
+      <Searchbar handleSubmit={handleSubmit} />
+      <ColorRing visible={isLoading} />
+      <ImageGallery>
+        <ImageGalleryItem
+          images={images}
+          showImages={showImages}
+          onToggleModal={onToggleModal}
+        />
+      </ImageGallery>
+      {loadMore && <Button handleClick={handleClick} showImages={showImages} />}
+      {isOpened && <Modal data={data} onClose={onToggleModal} />}
+    </div>
+  );
+};
