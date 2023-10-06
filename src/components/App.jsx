@@ -17,25 +17,24 @@ export const App = () => {
   const [loadMore, setLoadMore] = useState(true);
 
   useEffect(() => {
+    const fetchAllImages = async () => {
+      setIsLoading(true);
+      try {
+        const imagesEl = await fetchImages(page, input);
+        setImages(page === 1 ? imagesEl.hits : [...images, ...imagesEl.hits]);
+        setLoadMore(page < Math.ceil(imagesEl.totalHits / 12));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchAllImages();
   }, [page, input]);
 
   const onToggleModal = modalData => {
     setIsOpened(!isOpened);
     setData(modalData);
-  };
-
-  const fetchAllImages = async () => {
-    setIsLoading(true);
-    try {
-      const imagesEl = await fetchImages(page, input);
-      setImages(page === 1 ? imagesEl.hits : [...images, ...imagesEl.hits]);
-      setLoadMore(page < Math.ceil(imagesEl.totalHits / 12));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleSubmit = input => {

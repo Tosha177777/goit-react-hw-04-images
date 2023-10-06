@@ -10,10 +10,8 @@ const Modal = ({ data, onClose }) => {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('click', handleClick);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('click', handleClick);
     };
   }, [onClose]);
 
