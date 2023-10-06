@@ -17,11 +17,16 @@ export const App = () => {
   const [loadMore, setLoadMore] = useState(true);
 
   useEffect(() => {
+    if (!input) {
+      return;
+    }
     const fetchAllImages = async () => {
       setIsLoading(true);
       try {
         const imagesEl = await fetchImages(page, input);
-        setImages(page === 1 ? imagesEl.hits : [...images, ...imagesEl.hits]);
+        setImages(prevImages =>
+          page === 1 ? imagesEl.hits : [...prevImages, ...imagesEl.hits]
+        );
         setLoadMore(page < Math.ceil(imagesEl.totalHits / 12));
       } catch (error) {
         console.error(error);
