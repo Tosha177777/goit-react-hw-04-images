@@ -14,7 +14,7 @@ export const App = () => {
   const [page, setPage] = useState(1);
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadMore, setLoadMore] = useState(true);
+  const [loadMore, setLoadMore] = useState(false);
 
   useEffect(() => {
     if (!input) {
@@ -56,18 +56,22 @@ export const App = () => {
   };
 
   const showImages = Array.isArray(images) && images.length;
+
   return (
     <div>
       <Searchbar handleSubmit={handleSubmit} />
-      <ColorRing visible={isLoading} />
       <ImageGallery>
-        <ImageGalleryItem
-          images={images}
-          showImages={showImages}
-          onToggleModal={onToggleModal}
-        />
+        {showImages ? (
+          <ImageGalleryItem
+            images={images}
+            showImages={showImages}
+            onToggleModal={onToggleModal}
+          />
+        ) : (
+          <ColorRing visible={isLoading} />
+        )}
       </ImageGallery>
-      {loadMore && <Button handleClick={handleClick} showImages={showImages} />}
+      {loadMore && <Button handleClick={handleClick} />}
       {isOpened && <Modal data={data} onClose={onToggleModal} />}
     </div>
   );

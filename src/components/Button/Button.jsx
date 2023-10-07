@@ -1,13 +1,11 @@
 import React from 'react';
 import css from '../../Styles.module.css';
 
-const Button = ({ handleClick, showImages }) => {
+const Button = ({ handleClick }) => {
   return (
-    showImages && (
-      <button type="button" className={css.Button} onClick={handleClick}>
-        Load more
-      </button>
-    )
+    <button type="button" className={css.Button} onClick={handleClick}>
+      Load more
+    </button>
   );
 };
 export default Button;
