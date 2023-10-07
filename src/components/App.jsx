@@ -62,11 +62,7 @@ export const App = () => {
       <Searchbar handleSubmit={handleSubmit} />
       <ImageGallery>
         {showImages ? (
-          <ImageGalleryItem
-            images={images}
-            showImages={showImages}
-            onToggleModal={onToggleModal}
-          />
+          <ImageGalleryItem images={images} onToggleModal={onToggleModal} />
         ) : (
           <ColorRing visible={isLoading} />
         )}
